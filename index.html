@@ -1,96 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital QR System</title>
+  <title>Hospital QR System</title>
+  <link rel="stylesheet" href="styles.css">
 
-    <link rel="stylesheet" href="styles.css">
+  <!-- Scripts -->
+  <script src="speech.js"></script>
+  <script src="multilingual.js"></script>
+  <script src="directions.js"></script>
 
-    <!-- JS Scripts -->
-    <script src="speech.js"></script>
-    <script src="multilingual.js"></script>
-    <script src="directions.js"></script>
-
-    <style>
-        #scanner_box {
-            width: 300px;
-            height: 300px;
-            border: 3px solid #444;
-            margin-top: 20px;
-            display: none;
-        }
-
-        #video_preview {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        img {
-            margin: 10px;
-        }
-
-        button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-
-<body>
-<h1>Hospital QR Information System</h1>
-
-<!-- Language Selection -->
-<div class="card">
-    <h2>Select Language</h2>
-    <button onclick="setLanguage('en')">English</button>
-    <button onclick="setLanguage('hi')">Hindi</button>
-    <button onclick="setLanguage('kn')">Kannada</button>
-</div>
-
-<!-- QR Codes Section -->
-<div class="card">
-    <h2>Scan QR Codes</h2>
-
-    <img src="qr_output/opd.png" width="150">
-    <img src="qr_output/pharmacy.png" width="150">
-    <img src="qr_output/lab.png" width="150">
-    <img src="qr_output/doctors.png" width="150">
-
-    <br><br>
-
-    <button onclick="startScanner()">📷 Open QR Scanner</button>
-
-    <div id="scanner_box">
-        <video id="video_preview"></video>
-    </div>
-</div>
-
-<!-- QR SCANNER SCRIPT -->
-<script type="module">
+  <!-- QR Scanner Library -->
+  <script type="module">
     import QrScanner from "./qr-scanner.min.js";
-
-    // Worker file path
     QrScanner.WORKER_PATH = './qr-scanner-worker.min.js';
 
     let scanner;
 
-    window.startScanner = function () {
-        document.getElementById("scanner_box").style.display = "block";
+    window.onload = () => {
+      const videoElem = document.getElementById("qr-video");
 
-        scanner = new QrScanner(
-            document.getElementById("video_preview"),
-            result => {
-                alert("QR Code Detected: " + result);
-                window.location.href = result;
-            }
-        );
+      scanner = new QrScanner(
+        videoElem,
+        result => {
+          console.log("QR Result:", result);
 
+          // Redirect based on QR scanned text
+          if (result === "opd") window.location.href = "opd.html";
+          else if (result === "pharmacy") window.location.href = "pharmacy.html";
+          else if (result === "lab") window.location.href = "lab.html";
+          else if (result === "doctors") window.location.href = "doctors.html";
+        }
+      );
+
+      document.getElementById("start-scan").onclick = () => {
+        document.getElementById("scanner-box").style.display = "block";
         scanner.start();
+      };
+
+      document.getElementById("stop-scan").onclick = () => {
+        scanner.stop();
+        document.getElementById("scanner-box").style.display = "none";
+      };
     };
-</script>
+  </script>
+
+</head>
+<body>
+
+<h1 id="page_title">Hospital Information</h1>
+
+<!-- Language Selector -->
+<div class="card">
+  <h2>Select Language</h2>
+  <button onclick="setLanguage('en')">English</button>
+  <button onclick="setLanguage('hi')">Hindi</button>
+  <button onclick="setLanguage('kn')">Kannada</button>
+</div>
+
+<!-- QR Scanner -->
+<div class="card">
+  <h2>Scan QR Code</h2>
+  <button id="start-scan">Start Scanner</button>
+  <button id="stop-scan">Stop Scanner</button>
+
+  <div id="scanner-box" style="display:none; margin-top:10px;">
+    <video id="qr-video" width="300" style="border:1px solid #000;"></video>
+  </div>
+</div>
+
+<!-- Manual QR Images -->
+<div class="card">
+  <h2>QR Codes</h2>
+  <img src="qr_output/opd.png" width="150">
+  <img src="qr_output/pharmacy.png" width="150">
+  <img src="qr_output/lab.png" width="150">
+  <img src="qr_output/doctors.png" width="150">
+</div>
 
 </body>
 </html>
